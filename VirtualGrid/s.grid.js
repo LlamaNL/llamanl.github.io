@@ -1,271 +1,248 @@
-
 (function () {
-  "use strict";
+	"use strict";
 
-  S.grid = function (container) {
-    var grid = this;
-    this.container = S.get(container);
-    this.columns = null;
-    this.backup = null;
-    this._values = null;
-    //this.values = null;
-    this.panel = null;
-    this.totalRows = 0;
-    this.setOddRowStyle = false;
-    this.focusBorder = null;
-    this.shortcuts = [];
-    var initialized = false;
-    var lastScrollLeft = 0;
-    var lastScrollTop = 0;
+	S.grid = function (container) {
+		var grid = this;
+		this.container = S.get(container);
+		this.columns = null;
+		this.backup = null;
+		this.values = null;
+		this.panel = null;
+		this.totalRows = 0;
+		this.setOddRowStyle = false;
+		this.focusBorder = null;
+		this.shortcuts = [];
+		var initialized = false;
+		this.selected = [];
+		this.sortedColumn = null;
+		var lastScrollLeft = 0;
+		var lastScrollTop = 0;
 
-    Object.defineProperty(grid, 'values', {
-      get: function() {
-          return this._values;
-      },
-      set: function(values) {
-          this._values = values;
-          this.backup = values;
-      }
-    });
+		this.setValues = function (values, init) {
+			grid.values = values;
+			if (init === true) {
+				// this is passed by reference, so any sort of grid.values sorts grid.backup
+				grid.backup = values;
+			}
+			grid.reload();
+		}
+		this.sortValues = function (columnIndex) {
+			var newvalues = grid.values.sort(function (a, b) {
+				if (a[columnIndex] === b[columnIndex]) {
+					return 0;
+				} else {
+					return (a[columnIndex] < b[columnIndex]) ? -1 : 1;
+				}
+			});
+			return newvalues;
+		}
 
-    function init() {
-      grid.build(); 
+		function init() {
+			grid.build();
 
-      if(grid.initMouseEvents) {
-        grid.initMouseEvents();
-      }
+			if (grid.initMouseEvents) {
+				grid.initMouseEvents();
+			}
 
-      if(grid.initEditEvents) {
-        grid.initEditEvents();
-      }
+			if (grid.initEditEvents) {
+				grid.initEditEvents();
+			}
 
-      initialized = true;
-    };
-    
-    this.filterValues = function(element){
-      if (!element){
-        return;
-      }
-      grid.values = this.backup.filter(x => x.some(y => y.toString().indexOf(element.value) > -1 ));
-      grid.reload();
-      // set focus back to inputbox because reload steals focus
-      element.focus();
-    }
+			initialized = true;
+		};
 
-    this.getCell = function(rowIndex, columnIndex) {
-      if(grid.columns.length <= columnIndex) {
-        return null;
-      }
+		this.filterValues = function (element) {
+			if (!element) {
+				return;
+			}
+			grid.setValues(this.backup.filter(x => x.some(y => y.toString().indexOf(element.value) > -1)));
+			// set focus back to inputbox because reload steals focus
+			element.focus();
+		}
 
-      var rows = grid.rows;
-      if(rows.length <= rowIndex) {
-        return null;
-      }
+		this.getCell = function (rowIndex, columnIndex) {
+			if (grid.columns.length <= columnIndex) {
+				return null;
+			}
 
-      var row = rows[rowIndex];
-      if(row == null) {
-        return null;        
-      }
+			var rows = grid.rows;
+			if (rows.length <= rowIndex) {
+				return null;
+			}
 
-      return row.cells[columnIndex];
-    };
+			var row = rows[rowIndex];
+			if (row == null) {
+				return null;
+			}
 
-   // Devuelve el numero de rows visibles.
-   this.visibleRowCount = function() {
-        return parseInt(grid.globalPanelSize.height / grid.columnHeight);    
-   }
+			return row.cells[columnIndex];
+		};
 
-   this.setPageSize = function(rowIndex) {       
-      var visibleRowCount = grid.visibleRowCount();
-      var rowOffset = 1;
-      var start = rowIndex - rowOffset;
-      if(start < 0) {
-        start = 0;
-      }
+		// Returns the number of visible rows.
+		this.visibleRowCount = function () {
+			return parseInt(grid.globalPanelSize.height / grid.columnHeight);
+		}
 
-      var totalRows = getTotalRows();
+		this.setPageSize = function (rowIndex) {
+			var visibleRowCount = grid.visibleRowCount();
+			var rowOffset = 1;
+			var start = rowIndex - rowOffset;
+			if (start < 0) {
+				start = 0;
+			}
 
-      var end = rowIndex + visibleRowCount + rowOffset;
-      if(totalRows > 0 && end > totalRows) {
-        end = totalRows;
-      }
+			var totalRows = getTotalRows();
 
-      grid.renderPageSize = { 
-        start: start,
-        end: end 
-     };
-   }
+			var end = rowIndex + visibleRowCount + rowOffset;
+			if (totalRows > 0 && end > totalRows) {
+				end = totalRows;
+			}
 
-    this.reload = function() {
-      grid.clear();
-      grid.totalRows = 0;
-      grid.update();
-    }
+			grid.renderPageSize = {
+				start: start,
+				end: end
+			};
+		}
 
-    this.update = function(rowIndex) {
-      if(!initialized) {
-        init();
-      }
-      rowIndex = rowIndex || 0;
-      grid.setPageSize(rowIndex);
-      paint(rowIndex);
-    };
+		this.reload = function () {
+			grid.clear();
+			grid.totalRows = 0;
+			grid.update();
+		}
 
-    this.onScrollPanel = function(e) {
-      var left = grid.wrapper.scrollLeft;
-      var top = grid.wrapper.scrollTop;
+		this.update = function (rowIndex) {
+			if (!initialized) {
+				init();
+			}
+			rowIndex = rowIndex || 0;
+			grid.setPageSize(rowIndex);
+			paint(rowIndex);
+		};
 
-      if(Math.abs(left - grid.lastScrollLeft) > 0) {
-        updateHeader(left);
-      }
+		this.onScrollPanel = function (e) {
+			var left = grid.wrapper.scrollLeft;
+			var top = grid.wrapper.scrollTop;
 
-      if(Math.abs(top - grid.lastScrollTop) > 0) {
-        updateRows();
-      }
+			if (Math.abs(left - grid.lastScrollLeft) > 0) {
+				updateHeader(left);
+			}
 
-      grid.lastScrollLeft = left;
-      grid.lastScrollTop = top;
-    };
+			if (Math.abs(top - grid.lastScrollTop) > 0) {
+				updateRows();
+			}
 
-    function updateHeader(left) {
-      grid.headerPanel.style.left = (left * -1) + "px";
-    }
+			grid.lastScrollLeft = left;
+			grid.lastScrollTop = top;
+		};
 
-    function updateRows() {
-      var rowIndex = parseInt(grid.wrapper.scrollTop / grid.columnHeight);
-      grid.update(rowIndex);
-    }
+		function updateHeader(left) {
+			grid.headerPanel.style.left = (left * -1) + "px";
+		}
 
-    this.isRowInMemory = function(rowIndex) {
-      var values = grid.values;
+		function updateRows() {
+			var rowIndex = parseInt(grid.wrapper.scrollTop / grid.columnHeight);
+			grid.update(rowIndex);
+		}
 
-      if(values == null) {
-        return false;
-      }
+		this.isRowInMemory = function (rowIndex) {
+			var values = grid.values;
 
-      if(values.length <= rowIndex) {
-        return false;
-      }
+			if (values == null) {
+				return false;
+			}
 
-      var value = values[rowIndex];
-      if(value == null) {
-        return false;
-      }
+			if (values.length <= rowIndex) {
+				return false;
+			}
 
-      return true;
-    }
+			var value = values[rowIndex];
+			if (value == null) {
+				return false;
+			}
 
-    // indica si el row esta generado en el dom o es virtual
-    this.isRowRendered = function(rowIndex) {
-      if(grid.rows.length <= rowIndex) {
-        return false;
-      }
+			return true;
+		}
 
-      var value = grid.rows[rowIndex];
-      if(value == null) {
-        return false;
-      }
+		// Indicates whether the row is generated in the dom or is virtual
+		this.isRowRendered = function (rowIndex) {
+			if (grid.rows.length <= rowIndex) {
+				return false;
+			}
 
-      return true;
-    }
+			var value = grid.rows[rowIndex];
+			if (value == null) {
+				return false;
+			}
 
-    function paint(rowIndex) {
-      grid.totalRows = getTotalRows();  
-      if(grid.totalRows > 0) {     
-        grid.buildRows(rowIndex || 0);
-        grid.setFocus(0, 0);
-      }
-      else {
-        grid.clear();
-      }
-    };
+			return true;
+		}
 
-    this.clear = function() {
-      if(grid.panel) {
-        S.clearChildNodes(grid.panel);
-      }
-      grid.rows = [];
-    }
+		function paint(rowIndex) {
+			grid.totalRows = getTotalRows();
+			if (grid.totalRows > 0) {
+				grid.buildRows(rowIndex || 0);
+				grid.setFocus(0, 0);
+			} else {
+				grid.clear();
+			}
+		};
 
-    this.setValue = function(cell, value) {      
-        cell.value = value;
-        S.setText(cell.element, value);
-        grid.values[cell.rowIndex][cell.columnIndex] = value;
-    };
+		this.clear = function () {
+			if (grid.panel) {
+				S.clearChildNodes(grid.panel);
+			}
+			grid.rows = [];
+		}
 
-    this.getCellAtEvent = function(e) {
-      var coords = S.getMouseCoords(e, grid.panel);
-      var row = getRowAt(coords.y);
-      var column = getColumnAt(coords.x);
-      return grid.getCell(row, column);
-    };
+		this.setValue = function (cell, value) {
+			var newvalue;
+			if (isNaN(value)) {
+				newvalue = value;
+			} else {
+				newvalue = Number(value);
+			}
+			cell.value = newvalue;
 
-    function getTotalRows() {
-      if(grid.totalRows > 0) {
-        return grid.totalRows;
-      }
+			S.setText(cell.element, value);
+			grid.values[cell.rowIndex][cell.columnIndex] = newvalue;
+			grid.backup[cell.rowIndex][cell.columnIndex] = newvalue;
+			grid.sortedColumn = null;
+		};
 
-      if(grid.values) {
-        return grid.values.length;
-      }
+		this.getCellAtEvent = function (e) {
+			var coords = S.getMouseCoords(e, grid.panel);
+			var row = getRowAt(coords.y);
+			var column = getColumnAt(coords.x);
+			return grid.getCell(row, column);
+		};
 
-      return 0;
-    };
+		function getTotalRows() {
+			if (grid.totalRows > 0) {
+				return grid.totalRows;
+			}
 
-    function getColumnAt(x) {
-      var columns = grid.columns;
-      var offset = grid.numbersColumnWidth;      
-      for (var i = columns.length - 1; i >= 0; i--) {
-        var left = columns[i].left + offset;
-        if(x > left) {
-          return i;
-        }
-      }
-      return -1;
-    }
+			if (grid.values) {
+				return grid.values.length;
+			}
 
-    function getRowAt(y) {
-      return Math.floor(y / grid.columnHeight);  
-    }
-  };
+			return 0;
+		};
+
+		function getColumnAt(x) {
+			var columns = grid.columns;
+			var offset = grid.numbersColumnWidth;
+			for (var i = columns.length - 1; i >= 0; i--) {
+				var left = columns[i].left + offset;
+				if (x > left) {
+					return i;
+				}
+			}
+			return -1;
+		}
+
+		function getRowAt(y) {
+			return Math.floor(y / grid.columnHeight);
+		}
+	};
 
 })();
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
