@@ -9,6 +9,7 @@
 	var TAB = 9;
 	var cKey = 67;
 	var vKey = 86;
+	var ESCAPE = 27;
 
 	S.grid.prototype.initEditEvents = function () {
 		var grid = this;
@@ -56,7 +57,7 @@
 			};
 
 			setEditorBounds(editor, cell);
-			grid.panel.appendChild(editor);
+			grid.wrapper.appendChild(editor);
 			return editor;
 		}
 
@@ -131,10 +132,18 @@
 						S.copyTextToClipboard(selected);
 					}
 					break;
+
+				case ESCAPE:
+					// set old value. end edit
+					editor.value = grid.editingCell.value;
+					grid.endEdit();
+					break;
 			}
 		}
 
 		S.grid.prototype.endEdit = function () {
+			grid.sortedColumn = -1;
+			
 			var cell = grid.editingCell;
 			if (cell != null) {
 				grid.editingCell = null;

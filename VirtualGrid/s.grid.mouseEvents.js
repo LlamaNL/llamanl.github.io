@@ -17,16 +17,26 @@
 			e = e || window.event;
 			var target = e.target || e.srcElement;
 
+			if (grid.editingCell != null) {
+				grid.endEdit();
+			}
+
 			var columnIndex = target.className.split(' ')[2];
-			var newvalues;
 			if (grid.sortedColumn == columnIndex) {
-				newvalues = grid.values.reverse();
+				grid.sortedColumn = -1;
+				grid.values.reverse();
+				grid.reload();
 			} else {
 				// sort columnIndex
-				newvalues = grid.sortValues(columnIndex);
 				grid.sortedColumn = columnIndex;
+				// grid.values.sort(function(a, b) {
+				// 	return a[columnIndex].toString().localeCompare(b[columnIndex]);
+				//   });
+				var newvalues = grid.sortArray(grid.values, columnIndex);
+				grid.backup = grid.sortArray(grid.backup, columnIndex);
+				grid.setValues(newvalues);
 			}
-			grid.setValues(newvalues);
+
 		}, false);
 	};
 })();

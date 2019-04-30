@@ -55,10 +55,6 @@
 		function setBorderBounds(cell) {
 			var element = cell.element;
 			var focus = grid.focusBorder;
-			// S.attach(focus, "mousedown", function (e) {
-			// 	S.stopBubble(e);
-			// 	grid.startEdit(e, cell);
-			// });
 			focus.className = "focus " + cell.columnIndex + " " + cell.rowIndex;
 			focus.style.top = element.style.top;
 			focus.style.left = element.style.left;

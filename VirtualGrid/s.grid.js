@@ -14,28 +14,9 @@
 		this.shortcuts = [];
 		var initialized = false;
 		this.selected = [];
-		this.sortedColumn = null;
+		this.sortedColumn = -1;
 		var lastScrollLeft = 0;
 		var lastScrollTop = 0;
-
-		this.setValues = function (values, init) {
-			grid.values = values;
-			if (init === true) {
-				// this is passed by reference, so any sort of grid.values sorts grid.backup
-				grid.backup = values;
-			}
-			grid.reload();
-		}
-		this.sortValues = function (columnIndex) {
-			var newvalues = grid.values.sort(function (a, b) {
-				if (a[columnIndex] === b[columnIndex]) {
-					return 0;
-				} else {
-					return (a[columnIndex] < b[columnIndex]) ? -1 : 1;
-				}
-			});
-			return newvalues;
-		}
 
 		function init() {
 			grid.build();
@@ -50,6 +31,31 @@
 
 			initialized = true;
 		};
+
+		this.setValues = function (values, init) {
+			grid.values = values;
+			if (init === true) {
+				grid.backup = values;
+			}
+			grid.reload();
+		}
+
+		this.sortArray = function (array, columnIndex) {
+			var numbers = array.filter(col => !isNaN(col[columnIndex]));
+			var strings = array.filter(col => isNaN(col[columnIndex]));
+			if (numbers.length > 0) {
+				numbers.sort(function (a, b) {
+					return a[columnIndex] - b[columnIndex];
+				});
+			}
+			if (strings.length > 0) {
+				strings.sort(function (a, b) {
+					return a[columnIndex].localeCompare(b[columnIndex]);
+				});
+			}
+			var newvalues = numbers.concat(strings);
+			return newvalues;
+		}
 
 		this.filterValues = function (element) {
 			if (!element) {
@@ -197,16 +203,15 @@
 		this.setValue = function (cell, value) {
 			var newvalue;
 			if (isNaN(value)) {
-				newvalue = value;
+				newvalue = value.toString();
 			} else {
 				newvalue = Number(value);
 			}
-			cell.value = newvalue;
+			cell.value = value.toString();
 
-			S.setText(cell.element, value);
 			grid.values[cell.rowIndex][cell.columnIndex] = newvalue;
-			grid.backup[cell.rowIndex][cell.columnIndex] = newvalue;
-			grid.sortedColumn = null;
+
+			S.setText(cell.element, cell.value);
 		};
 
 		this.getCellAtEvent = function (e) {
