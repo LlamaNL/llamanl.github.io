@@ -34,7 +34,7 @@
 		element.onkeydown = function (e) {
 			onKeydown(e, cell);
 		};
-	}
+	};
 
 	function onKeydown(e, cell) {
 		switch (e.keyCode) {

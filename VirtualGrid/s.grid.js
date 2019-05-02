@@ -30,19 +30,25 @@
 			}
 
 			initialized = true;
-		};
+		}
 
 		this.setValues = function (values, init) {
 			grid.values = values;
 			if (init === true) {
 				grid.backup = values;
+				grid.sortedColumn = -1;
 			}
 			grid.reload();
-		}
+		};
 
 		this.sortArray = function (array, columnIndex) {
-			var numbers = array.filter(col => !isNaN(col[columnIndex]));
-			var strings = array.filter(col => isNaN(col[columnIndex]));
+			var numbers = array.filter(function(col){
+				return !isNaN(col[columnIndex]);
+			});
+
+			var strings = array.filter(function (col){
+				return isNaN(col[columnIndex]);
+			});
 			if (numbers.length > 0) {
 				numbers.sort(function (a, b) {
 					return a[columnIndex] - b[columnIndex];
@@ -55,16 +61,24 @@
 			}
 			var newvalues = numbers.concat(strings);
 			return newvalues;
-		}
+		};
 
 		this.filterValues = function (element) {
 			if (!element) {
 				return;
 			}
-			grid.setValues(this.backup.filter(x => x.some(y => y.toString().indexOf(element.value) > -1)));
+
+			var filtered = this.backup.filter(function (x){
+				return x.some(function (y){
+					return y.toString().indexOf(element.value) > -1;
+				});
+			});
+			
+			grid.setValues(filtered);
+
 			// set focus back to inputbox because reload steals focus
 			element.focus();
-		}
+		};
 
 		this.getCell = function (rowIndex, columnIndex) {
 			if (grid.columns.length <= columnIndex) {
@@ -87,7 +101,7 @@
 		// Returns the number of visible rows.
 		this.visibleRowCount = function () {
 			return parseInt(grid.globalPanelSize.height / grid.columnHeight);
-		}
+		};
 
 		this.setPageSize = function (rowIndex) {
 			var visibleRowCount = grid.visibleRowCount();
@@ -108,13 +122,13 @@
 				start: start,
 				end: end
 			};
-		}
+		};
 
 		this.reload = function () {
 			grid.clear();
 			grid.totalRows = 0;
 			grid.update();
-		}
+		};
 
 		this.update = function (rowIndex) {
 			if (!initialized) {
@@ -167,7 +181,7 @@
 			}
 
 			return true;
-		}
+		};
 
 		// Indicates whether the row is generated in the dom or is virtual
 		this.isRowRendered = function (rowIndex) {
@@ -181,24 +195,23 @@
 			}
 
 			return true;
-		}
+		};
 
 		function paint(rowIndex) {
 			grid.totalRows = getTotalRows();
 			if (grid.totalRows > 0) {
 				grid.buildRows(rowIndex || 0);
-				grid.setFocus(0, 0);
 			} else {
 				grid.clear();
 			}
-		};
+		}
 
 		this.clear = function () {
 			if (grid.panel) {
 				S.clearChildNodes(grid.panel);
 			}
 			grid.rows = [];
-		}
+		};
 
 		this.setValue = function (cell, value) {
 			var newvalue;
@@ -231,7 +244,7 @@
 			}
 
 			return 0;
-		};
+		}
 
 		function getColumnAt(x) {
 			var columns = grid.columns;

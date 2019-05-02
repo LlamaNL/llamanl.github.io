@@ -88,7 +88,7 @@
 				column.left = left;
 				left += column.width;
 				grid.columnsWidth += column.width;
-			};
+			}
 		}
 
 		function setGridWrapperBounds() {
@@ -125,22 +125,22 @@
 				buildRow(i);
 			}
 		}
-
+		var row;
 		// delete the previous ones
-		for (var i = start - 1; i >= 0; i--) {
-			var row = rows[i];
+		for (var j = start - 1; j >= 0; j--) {
+			row = rows[j];
 			if (row != null) {
 				destroyRow(row);
-				rows[i] = null;
+				rows[j] = null;
 			}
 		}
 
 		// delete the later ones
-		for (var i = rows.length - 1; i >= end; i--) {
-			var row = rows[i];
+		for (var k = rows.length - 1; k >= end; k--) {
+			row = rows[k];
 			if (row != null) {
 				destroyRow(row);
-				rows[i] = null;
+				rows[k] = null;
 			}
 		}
 
@@ -152,7 +152,7 @@
 			for (var i = cells.length - 1; i >= 0; i--) {
 				var element = cells[i].element;
 				grid.panel.removeChild(element);
-			};
+			}
 
 		}
 

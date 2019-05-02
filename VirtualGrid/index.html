@@ -17,11 +17,18 @@
 
 <body>
 	<div class="page">
-		<h1>Basic Example</h1>
+		<h1>Features</h1>
+		<li>Row Select (click on row number)</li>
+		<li>Column Sort (click on column header)</li>
+		<li>Multiselect (hold down control and click on cells)</li>
+		<li>Range Multiselect (hold down shift and click on 2 cells</li>
+		<li>Filter content (enter search string in Search... box</li>
+		<li>Compatiblity with IE11</li>
+		<br/>
 		<div><input type="text" id="myInput" onkeyup="grid.filterValues(document.getElementById('myInput'))" placeholder="Search..."></div>
-		</br>
+		<br/>
 		<div id="grid1" style="height:400px;width:800px"></div>
-		</br>
+		<br/>
 		<div class="margin">
 			<input type="button" value="250 rows" onclick="grid.setValues(createValues(250), true)" />
 			<input type="button" value="2,500 rows" onclick="grid.setValues(createValues(2500), true)" />
@@ -38,6 +45,7 @@
 	<script src="s.grid.edit.js"></script>
 	<script src="s.grid.keyEvents.js"></script>
 	<script src="s.grid.mouseEvents.js"></script>
+	<script src="polyfills.js"></script>
 
 	<script type='text/javascript'>
 		var columns = [{

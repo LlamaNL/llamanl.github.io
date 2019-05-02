@@ -19,7 +19,7 @@
 				grid.startEdit(e, cell);
 			}
 		});
-	}
+	};
 
 	S.grid.prototype.startEdit = function (e, cell) {
 		S.stopBubble(e);
@@ -41,7 +41,7 @@
 
 		function buildEditor() {
 			editor = document.createElement("input");
-			editor.type = "text"
+			editor.type = "text";
 			editor.className = "gridEditor";
 
 			editor.onblur = function (e) {
@@ -65,8 +65,8 @@
 			var element = cell.element;
 			editor.style.top = (element.offsetTop + 2) + "px";
 			editor.style.left = (element.offsetLeft + 2) + "px";
-			editor.style.width = (element.offsetWidth - 4) + "px";;
-			editor.style.height = (element.offsetHeight - 4) + "px";;
+			editor.style.width = (element.offsetWidth - 4) + "px";
+			editor.style.height = (element.offsetHeight - 4) + "px";
 		}
 
 
@@ -102,8 +102,8 @@
 
 				case KEY_LEFT:
 					if (cell.columnIndex > 0) {
-						var position = S.getCaretPosition(editor);
-						if (position <= 0) {
+						var leftpos = S.getCaretPosition(editor);
+						if (leftpos <= 0) {
 							grid.endEdit();
 							if (cell.columnIndex > 0) {
 								grid.setFocus(cell.rowIndex, cell.columnIndex - 1, false);
@@ -114,8 +114,8 @@
 					break;
 
 				case KEY_RIGHT:
-					var position = S.getCaretPosition(editor);
-					if (position >= editor.value.length) {
+					var rightpos = S.getCaretPosition(editor);
+					if (rightpos >= editor.value.length) {
 						grid.endEdit();
 						if (cell.columnIndex < grid.columns.length) {
 							grid.setFocus(cell.rowIndex, cell.columnIndex + 1, false);
@@ -163,6 +163,6 @@
 				S.removeNode(editor);
 				editor = null;
 			}
-		}
+		};
 	};
 })();

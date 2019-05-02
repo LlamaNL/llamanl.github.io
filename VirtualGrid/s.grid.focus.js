@@ -8,7 +8,7 @@
 		if (multi === false) {
 			var removeEl = document.querySelectorAll('.focus');
 			for (var i = 0; i < removeEl.length; i++) {
-				removeEl[i].remove();
+				removeEl[i].parentNode.removeChild(removeEl[i]);
 			}
 			grid.selected = [];
 		}
@@ -42,12 +42,12 @@
 			}
 
 			// remove focus from selected cell
-			var removeEl = document.querySelectorAll('.focus');
-			for (var i = 0; i < removeEl.length; i++) {
-				var elementcolumn = removeEl[i].className.split(' ')[1];
-				var elementrow = removeEl[i].className.split(' ')[2];
+			var elements = document.querySelectorAll('.focus');
+			for (var j = 0; j < elements.length; j++) {
+				var elementcolumn = elements[j].className.split(' ')[1];
+				var elementrow = elements[j].className.split(' ')[2];
 				if (elementrow == cell.rowIndex && elementcolumn == cell.columnIndex) {
-					removeEl[i].remove();
+    				elements[j].parentNode.removeChild(elements[j]);
 				}
 			}
 		}

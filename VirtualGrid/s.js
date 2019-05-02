@@ -88,7 +88,7 @@
         }
 
         if (text !== null) {
-            S.setText(element, text)
+            S.setText(element, text);
         }
 
         return element;
@@ -117,7 +117,7 @@
             totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
             currentElement = currentElement.offsetParent;
         }
-        while (currentElement)
+        while (currentElement);
 
         var x = event.pageX - totalOffsetX - document.body.scrollLeft;
         var y = event.pageY - totalOffsetY - document.body.scrollTop;
@@ -125,7 +125,7 @@
         return {
             x: x,
             y: y
-        }
+        };
     };
 
     S.setText = function (element, text) {
@@ -155,6 +155,9 @@
     S.stopBubble = function (event) {
         if (!event) {
             event = window.event;
+        }
+        if (!event) {
+            return;
         }
 
         if (event.preventDefault) {
@@ -220,5 +223,18 @@
         }
 
         document.body.removeChild(textArea);
-    }
+    };
+
+    S.range = function (start, end) {
+        var ans = [];
+        if (start > end) {
+            var temp = start;
+            start = end;
+            end = temp;
+        }
+        for (var i = start; i <= end; i++) {
+            ans.push(i);
+        }
+        return ans;
+    };
 })();
