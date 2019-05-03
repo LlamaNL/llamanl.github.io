@@ -34,7 +34,7 @@
 
 			var columnIndex = target.className.split(' ')[2];
 			var col = Number(columnIndex) + 1;
-			if (grid.sortDirection == null) {
+			if (grid.sortDirection == null || grid.sortedColumn != columnIndex) {
 				target.title = "Column " + col;
 			} else if (grid.sortedColumn == columnIndex) {
 				var dir = grid.sortDirection ? "ascending" : "descending";
