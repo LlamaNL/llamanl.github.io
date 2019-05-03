@@ -76,12 +76,9 @@
 			var filtered = [];
 			if (values.length > 0) {
 				filtered = this.backup.filter(function (x) {
-					var value1 = x.toString().indexOf(values[0]) > -1;
-					if (values.length > 1){
-						var value2 = x.toString().indexOf(values[1]) > -1;
-						return value1 && value2;
-					} 
-					return value1;
+					return values.every(function(y){
+						return x.toString().indexOf(y) > -1;
+					});
 				});
 			} else {
 				filtered = this.backup;
