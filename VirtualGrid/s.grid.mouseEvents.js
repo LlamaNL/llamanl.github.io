@@ -28,6 +28,20 @@
 			}
 		});
 
+		S.attach(grid.headerPanel, "mouseover", function (e) {
+			e = e || window.event;
+			var target = e.target || e.srcElement;
+
+			var columnIndex = target.className.split(' ')[2];
+			var col = Number(columnIndex) + 1;
+			if (grid.sortDirection == null) {
+				target.title = "Column " + col;
+			} else if (grid.sortedColumn == columnIndex) {
+				var dir = grid.sortDirection ? "ascending" : "descending";
+				target.title = "Column " + col + " sorted " + dir;
+			}
+		}, false);
+
 		S.attach(grid.headerPanel, "mousedown", function (e) {
 			grid.container.style.cursor = "wait";
 		}, false);
@@ -42,10 +56,12 @@
 
 			var columnIndex = target.className.split(' ')[2];
 			if (grid.sortedColumn == columnIndex) {
+				grid.sortDirection = !grid.sortDirection;
 				grid.values.reverse();
 				grid.reload();
 			} else {
 				// sort columnIndex
+				grid.sortDirection = true;
 				grid.sortedColumn = columnIndex;
 				var newvalues = grid.sortArray(grid.values, columnIndex);
 				grid.backup = grid.sortArray(grid.backup, columnIndex);
