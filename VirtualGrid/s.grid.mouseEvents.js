@@ -58,11 +58,13 @@
 			if (grid.sortedColumn == columnIndex) {
 				grid.sortDirection = !grid.sortDirection;
 				grid.values.reverse();
+				grid.setHeaders();
 				grid.reload();
 			} else {
 				// sort columnIndex
 				grid.sortDirection = true;
 				grid.sortedColumn = columnIndex;
+				grid.setHeaders();
 				var newvalues = grid.sortArray(grid.values, columnIndex);
 				grid.backup = grid.sortArray(grid.backup, columnIndex);
 				grid.setValues(newvalues);

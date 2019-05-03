@@ -27,7 +27,7 @@
 		<li>Column headers now show if a column is sorted and in which direction (hover over column header)</li>
 		<li>Compatiblity with IE11</li>
 		<br/>
-		<div><input type="text" id="myInput" onkeyup="grid.filterValues(document.getElementById('myInput'))" placeholder="Search..."></div>
+		<div><input type="text" id="myInput" onkeyup="grid.filterValues(document.getElementById('myInput').value); document.getElementById('myInput').focus()" placeholder="Search..."></div>
 		<br/>
 		<div id="grid1" style="height:400px;width:800px"></div>
 		<br/>

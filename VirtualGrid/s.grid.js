@@ -32,6 +32,18 @@
 
 			initialized = true;
 		}
+		this.setHeaders = function (){
+			var arrow = grid.sortDirection ? "⬇" : "⬆";		
+			var elements = document.getElementsByClassName("header");
+			for (var i = 0; i < elements.length; i++) {
+				var columnIndex = elements[i].className.split(' ')[2];
+				if (grid.sortedColumn == columnIndex && grid.sortedColum != -1) {
+					S.setText(elements[i], grid.columns[columnIndex].text + arrow);
+				} else {
+					S.setText(elements[i], grid.columns[columnIndex].text);
+				}
+			}
+		};
 
 		this.setValues = function (values, init) {
 			grid.values = values;
@@ -65,18 +77,18 @@
 			return newvalues;
 		};
 
-		this.filterValues = function (element) {
-			if (!element) {
+		this.filterValues = function (filter) {
+			if (!filter) {
 				return;
 			}
 
-			var values = element.value.split(";");
-			values = values.filter(Boolean);
+			var filters = filter.split(";");
+			filters = filters.filter(Boolean);
 
 			var filtered = [];
-			if (values.length > 0) {
+			if (filters.length > 0) {
 				filtered = this.backup.filter(function (x) {
-					return values.every(function(y){
+					return filters.every(function(y){
 						return x.toString().indexOf(y) > -1;
 					});
 				});
@@ -85,9 +97,6 @@
 			}
 
 			grid.setValues(filtered);
-
-			// set focus back to inputbox because reload steals focus
-			element.focus();
 		};
 
 		this.getCell = function (rowIndex, columnIndex) {
@@ -233,6 +242,8 @@
 			cell.value = value.toString();
 
 			grid.sortDirection = null;
+			grid.sortedColumn = -1;
+			grid.setHeaders();
 			grid.values[cell.rowIndex][cell.columnIndex] = newvalue;
 
 			S.setText(cell.element, cell.value);
